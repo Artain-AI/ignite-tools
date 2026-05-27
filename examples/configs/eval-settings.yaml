@@ -1,0 +1,22 @@
+# Eval settings for ignite-eval.
+# Referenced from the main config: ignite-eval: ./eval-settings.yaml
+#
+# These tell the evaluator what you care about so it picks
+# the right models for your situation.
+sections:
+  - corpus_stats
+  - per_source
+  - labels
+  - top_words
+  - patterns
+top_words:
+  count: 25
+  min_length: 3
+  stop_words_extend: [fix, add, update, use]
+task: classify
+priority: quality
+mode: batch
+prefer: [classification, short_text]
+constraints:
+  max_size_mb: 1500
+  max_dim: 768

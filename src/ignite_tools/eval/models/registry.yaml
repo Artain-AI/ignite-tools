@@ -1,0 +1,847 @@
+# Model Registry - open-source embedding models for ignite-eval
+#
+# This is the source of truth for which models ignite-eval knows about.
+# The auto-selector uses this data to pick candidates based on user data.
+#
+# Fields:
+#   id:           HuggingFace model ID (what you pass to SentenceTransformer)
+#   name:         Short human-readable name for display
+#   params:       Parameter count (approximate)
+#   dim:          Output embedding dimension
+#   max_tokens:   Maximum input sequence length in tokens
+#   multilingual: true if the model handles multiple languages well
+#   languages:    list of primary languages (empty = English only)
+#   speed_tier:   fast / medium / slow / very_slow
+#   quality_tier: baseline / good / better / best
+#   size_mb:      Approximate download size in MB
+#   matryoshka:   Supports native dimension truncation
+#   prefix:       Required input prefix (empty string if none)
+#   best_for:     List of use-case tags where this model excels
+#   avoid_when:   List of situations where this model is a bad fit
+#   description:  One-sentence plain-English explanation for non-technical users
+#
+# Use-case tags (for best_for / avoid_when):
+#   general          - works for most tasks
+#   short_text       - optimized for short inputs (< 128 tokens)
+#   long_documents   - handles 2K+ token inputs well
+#   multilingual     - strong cross-language performance
+#   cross_lingual    - good at matching text across languages
+#   code             - trained on code / technical text
+#   search           - optimized for query-document retrieval
+#   classification   - good for categorization tasks
+#   clustering       - good for grouping similar items
+#   similarity       - good for pairwise similarity scoring
+#   rag              - good for retrieval-augmented generation
+#   dim_reduction    - supports or tolerates dimension reduction well
+#   prototyping      - fast enough for quick experiments
+#   production       - good balance of quality and speed for deployment
+#   cpu_friendly     - runs well without a GPU
+#   speed_critical   - when throughput matters more than quality
+#   quality_critical - when accuracy matters more than speed
+# ─────────────────────────────────────────────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# TINY / FAST - under 30M params, 384 dim
+# Best for: prototyping, CPU-only, speed-critical, baseline comparison
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: sentence-transformers/all-MiniLM-L6-v2
+  name: MiniLM-L6
+  params: 22M
+  dim: 384
+  max_tokens: 256
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: baseline
+  size_mb: 90
+  matryoshka: false
+  prefix: ""
+  best_for: [general, short_text, prototyping, cpu_friendly, speed_critical]
+  avoid_when: [multilingual, long_documents, quality_critical]
+  description: >
+    The fastest small model. Good baseline for English short text under 256
+    tokens. Start here if you just want something that works quickly.
+
+- id: sentence-transformers/all-MiniLM-L12-v2
+  name: MiniLM-L12
+  params: 33M
+  dim: 384
+  max_tokens: 256
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: good
+  size_mb: 130
+  matryoshka: false
+  prefix: ""
+  best_for: [general, short_text, prototyping, cpu_friendly]
+  avoid_when: [multilingual, long_documents]
+  description: >
+    Slightly larger and better than MiniLM-L6, still fast. Good default
+    when you need a step up from the baseline without paying much speed cost.
+
+- id: sentence-transformers/paraphrase-MiniLM-L6-v2
+  name: Paraphrase-MiniLM-L6
+  params: 22M
+  dim: 384
+  max_tokens: 256
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: baseline
+  size_mb: 90
+  matryoshka: false
+  prefix: ""
+  best_for: [similarity, short_text, prototyping]
+  avoid_when: [search, multilingual, long_documents]
+  description: >
+    Optimized for detecting paraphrases and similar sentences. Slightly
+    better than all-MiniLM for pure similarity tasks.
+
+- id: sentence-transformers/paraphrase-MiniLM-L3-v2
+  name: Paraphrase-MiniLM-L3
+  params: 17M
+  dim: 384
+  max_tokens: 256
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: baseline
+  size_mb: 60
+  matryoshka: false
+  prefix: ""
+  best_for: [prototyping, speed_critical, cpu_friendly]
+  avoid_when: [quality_critical, multilingual, long_documents]
+  description: >
+    Smallest and fastest model in the registry. Use when speed matters
+    more than anything else, or for quick proof-of-concept experiments.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SMALL - 30-120M params, 384 dim
+# Best for: production on CPU, good quality without GPU requirements
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: BAAI/bge-small-en-v1.5
+  name: BGE-small
+  params: 33M
+  dim: 384
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: better
+  size_mb: 130
+  matryoshka: false
+  prefix: ""
+  best_for: [general, search, classification, production, cpu_friendly]
+  avoid_when: [multilingual, long_documents]
+  description: >
+    Strong English model that punches above its weight. Better quality than
+    MiniLM at similar speed. A safe default for English-only production use.
+
+- id: intfloat/e5-small-v2
+  name: E5-small
+  params: 33M
+  dim: 384
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: good
+  size_mb: 130
+  matryoshka: false
+  prefix: "passage: "
+  best_for: [search, general, production, cpu_friendly]
+  avoid_when: [multilingual, long_documents]
+  description: >
+    E5 family's smallest model. Requires "passage: " prefix for documents.
+    Competitive with BGE-small on retrieval tasks.
+
+- id: thenlper/gte-small
+  name: GTE-small
+  params: 33M
+  dim: 384
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: good
+  size_mb: 130
+  matryoshka: false
+  prefix: ""
+  best_for: [general, search, clustering]
+  avoid_when: [multilingual, long_documents]
+  description: >
+    General text embedding model from Alibaba. Competitive at the small
+    size tier with no prefix requirement.
+
+- id: intfloat/multilingual-e5-small
+  name: E5-small-multilingual
+  params: 118M
+  dim: 384
+  max_tokens: 512
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko, ar, hi, pt, it, nl, pl, tr, vi, th, id, cs, uk, ro, bg, da, fi, hu, "no", sv, el, he, ca, lt, sl, et, lv, sq, mk, gl, cy, ka, uz, az, kk, ta, te, ml, kn, mr, bn, gu, pa, si, ne, my, km, lo]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 470
+  matryoshka: false
+  prefix: "passage: "
+  best_for: [multilingual, cross_lingual, general, production]
+  avoid_when: [speed_critical, cpu_friendly]
+  description: >
+    The go-to multilingual model. Handles 50+ languages at 384 dimensions.
+    Best quality/speed tradeoff for multilingual. Requires "passage: "
+    prefix.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# BASE - 100-150M params, 768 dim
+# Best for: production with GPU, higher quality, general-purpose
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: sentence-transformers/all-mpnet-base-v2
+  name: MPNet-base
+  params: 109M
+  dim: 768
+  max_tokens: 384
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 420
+  matryoshka: false
+  prefix: ""
+  best_for: [general, similarity, clustering, classification]
+  avoid_when: [multilingual, long_documents, speed_critical]
+  description: >
+    The classic quality baseline. Best general-purpose English model before
+    the BGE/E5 era. Still competitive and requires no prefix.
+
+- id: BAAI/bge-base-en-v1.5
+  name: BGE-base
+  params: 109M
+  dim: 768
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 420
+  matryoshka: false
+  prefix: ""
+  best_for: [search, general, classification, production]
+  avoid_when: [multilingual, long_documents, speed_critical]
+  description: >
+    Excellent English model at the 768-dim tier. Strong on retrieval and
+    classification. Good default when you have a GPU available.
+
+- id: intfloat/e5-base-v2
+  name: E5-base
+  params: 109M
+  dim: 768
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 420
+  matryoshka: false
+  prefix: "passage: "
+  best_for: [search, general, production]
+  avoid_when: [multilingual, long_documents, speed_critical]
+  description: >
+    E5 family's base model. Strong on retrieval tasks. Requires "passage: "
+    prefix for documents.
+
+- id: thenlper/gte-base
+  name: GTE-base
+  params: 109M
+  dim: 768
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 420
+  matryoshka: false
+  prefix: ""
+  best_for: [general, search, clustering]
+  avoid_when: [multilingual, long_documents, speed_critical]
+  description: >
+    Alibaba's base model. Competitive with BGE-base across tasks, no prefix
+    requirement.
+
+- id: nomic-ai/nomic-embed-text-v1.5
+  name: Nomic-v1.5
+  params: 137M
+  dim: 768
+  max_tokens: 8192
+  multilingual: true
+  languages: [en, de, fr, es, it, pt, nl, ru, zh, ja, ko, ar, hi, pl, cs, tr, vi, th, id, sv, da, fi, "no", hu, ro, bg, uk, el, he, ca]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 550
+  matryoshka: true
+  prefix: "search_document: "
+  best_for: [long_documents, rag, dim_reduction, multilingual, production]
+  avoid_when: [speed_critical, short_text]
+  description: >
+    Long-context model (8K tokens) with Matryoshka dimension reduction.
+    You can truncate embeddings to 256 or 128 dims with minimal quality loss.
+    Great for RAG and document-level tasks.
+
+- id: jinaai/jina-embeddings-v2-base-en
+  name: Jina-v2-base
+  params: 137M
+  dim: 768
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 550
+  matryoshka: false
+  prefix: ""
+  best_for: [long_documents, rag, search]
+  avoid_when: [multilingual, speed_critical, short_text]
+  description: >
+    Long-context English model (8K tokens) with no prefix requirement.
+    Good alternative to Nomic when you don't need multilingual or Matryoshka.
+
+- id: jinaai/jina-embeddings-v2-small-en
+  name: Jina-v2-small
+  params: 33M
+  dim: 512
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: good
+  size_mb: 130
+  matryoshka: false
+  prefix: ""
+  best_for: [long_documents, rag, speed_critical, cpu_friendly]
+  avoid_when: [multilingual, quality_critical]
+  description: >
+    Small but with 8K context - useful when your documents are long but
+    you need fast embedding on CPU.
+
+- id: intfloat/multilingual-e5-base
+  name: E5-base-multilingual
+  params: 278M
+  dim: 768
+  max_tokens: 512
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko, ar, hi, pt, it, nl, pl, tr, vi, th, id, cs, uk, ro, bg, da, fi, hu, "no", sv, el, he, ca, lt, sl, et, lv]
+  speed_tier: slow
+  quality_tier: better
+  size_mb: 1100
+  matryoshka: false
+  prefix: "passage: "
+  best_for: [multilingual, cross_lingual, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly]
+  description: >
+    Higher-quality multilingual model at 768 dims. Use when E5-small-multilingual
+    isn't quite good enough and you have a GPU.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LARGE - 300M+ params, 1024 dim
+# Best for: maximum quality, GPU required, benchmark-topping performance
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: BAAI/bge-large-en-v1.5
+  name: BGE-large
+  params: 335M
+  dim: 1024
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, search, classification, production]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    Top-tier English model. Use when quality is paramount and you have
+    GPU resources. Significantly better than base models on hard tasks.
+
+- id: intfloat/e5-large-v2
+  name: E5-large
+  params: 335M
+  dim: 1024
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: "passage: "
+  best_for: [search, quality_critical, production]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    E5 family's largest English model. Benchmark leader on retrieval.
+    Requires "passage: " prefix.
+
+- id: thenlper/gte-large
+  name: GTE-large
+  params: 335M
+  dim: 1024
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: ""
+  best_for: [general, search, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    Alibaba's large model. Competitive with BGE-large and E5-large. No
+    prefix needed.
+
+- id: intfloat/multilingual-e5-large
+  name: E5-large-multilingual
+  params: 560M
+  dim: 1024
+  max_tokens: 512
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko, ar, hi, pt, it, nl, pl, tr, vi, th, id, cs, uk, ro, bg, da, fi, hu, "no", sv, el, he, ca, lt, sl, et, lv]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 2200
+  matryoshka: false
+  prefix: "passage: "
+  best_for: [multilingual, cross_lingual, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly]
+  description: >
+    The best multilingual model available. Use when cross-language quality
+    is non-negotiable and you have serious GPU resources.
+
+- id: mixedbread-ai/mxbai-embed-large-v1
+  name: MxBAI-large
+  params: 335M
+  dim: 1024
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: ""
+  best_for: [search, general, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    Strong contender from Mixedbread. Competitive with BGE-large on
+    retrieval benchmarks. No prefix needed.
+
+- id: BAAI/bge-m3
+  name: BGE-M3
+  params: 568M
+  dim: 1024
+  max_tokens: 8192
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko, ar, hi, pt, it, nl, pl, tr, vi, th, id, cs, uk, ro, bg, da, fi, hu, "no", sv, el, he, ca, lt, sl, et, lv]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 2200
+  matryoshka: false
+  prefix: ""
+  best_for: [multilingual, long_documents, search, rag, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly]
+  description: >
+    Multi-lingual, multi-granularity, multi-functionality model with 8K
+    context. Handles dense retrieval, sparse retrieval, and multi-vector
+    retrieval. The kitchen sink of embedding models.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SPECIALIZED - domain-specific or unique architecture
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: jinaai/jina-embeddings-v3
+  name: Jina-v3
+  params: 570M
+  dim: 1024
+  max_tokens: 8192
+  multilingual: true
+  languages: [en, de, fr, es, it, pt, nl, ru, zh, ja, ko, ar, hi, pl, cs, tr, vi, th, id, sv, da, fi, "no", hu, ro, bg, uk, el, he, ca]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 2200
+  matryoshka: true
+  prefix: ""
+  best_for: [long_documents, rag, multilingual, dim_reduction, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly]
+  description: >
+    Jina's latest model with 8K context, Matryoshka support, and task-specific
+    adapters. Very strong on long-document retrieval.
+
+- id: Alibaba-NLP/gte-Qwen2-1.5B-instruct
+  name: GTE-Qwen2-1.5B
+  params: 1500M
+  dim: 1536
+  max_tokens: 32768
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 6000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, long_documents, rag]
+  avoid_when: [speed_critical, cpu_friendly, prototyping]
+  description: >
+    Massive 1.5B parameter model based on Qwen2. State-of-the-art quality
+    with 32K context. Only practical with a serious GPU (24GB+ VRAM).
+
+- id: Snowflake/snowflake-arctic-embed-m-v2.0
+  name: Arctic-embed-m
+  params: 109M
+  dim: 768
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 420
+  matryoshka: true
+  prefix: ""
+  best_for: [search, rag, long_documents, dim_reduction]
+  avoid_when: [multilingual, speed_critical]
+  description: >
+    Snowflake's retrieval-optimized model with 8K context and Matryoshka
+    support. Strong on search/RAG benchmarks.
+
+- id: Snowflake/snowflake-arctic-embed-l-v2.0
+  name: Arctic-embed-l
+  params: 335M
+  dim: 1024
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: true
+  prefix: ""
+  best_for: [search, rag, long_documents, quality_critical, dim_reduction]
+  avoid_when: [multilingual, speed_critical, cpu_friendly]
+  description: >
+    Snowflake's large retrieval model. Top-tier search quality with 8K
+    context and Matryoshka. A strong alternative to BGE-large.
+
+- id: dunzhang/stella_en_400M_v5
+  name: Stella-400M
+  params: 400M
+  dim: 1024
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1600
+  matryoshka: false
+  prefix: ""
+  best_for: [search, rag, quality_critical, long_documents]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    High-quality English model trained for retrieval and semantic similarity.
+    Strong MTEB scores with 8K context.
+
+- id: avsolatorio/GIST-small-Embedding-v0
+  name: GIST-small
+  params: 33M
+  dim: 384
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: fast
+  quality_tier: good
+  size_mb: 130
+  matryoshka: false
+  prefix: ""
+  best_for: [general, classification, clustering, cpu_friendly]
+  avoid_when: [multilingual, long_documents]
+  description: >
+    Guided In-sample Selection Training. A small model that performs
+    surprisingly well on classification and clustering tasks.
+
+- id: avsolatorio/GIST-large-Embedding-v0
+  name: GIST-large
+  params: 335M
+  dim: 1024
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: ""
+  best_for: [classification, clustering, quality_critical]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    Large GIST model. Particularly strong on classification and clustering
+    benchmarks.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# LLM-BASED - 1B-7B+ params, 4096-8192 dim
+# These are embedding models built on top of large language models.
+# Highest quality available, but require serious GPU (24GB+ VRAM).
+# Not practical on CPU. Use when quality is the only thing that matters.
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: intfloat/e5-mistral-7b-instruct
+  name: E5-Mistral-7B
+  params: 7100M
+  dim: 4096
+  max_tokens: 32768
+  multilingual: true
+  languages: [en, de, fr, es, it, pt, nl, ru, zh, ja, ko]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 14000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, long_documents, rag, search, multilingual]
+  avoid_when: [speed_critical, cpu_friendly, prototyping]
+  description: >
+    7B parameter model based on Mistral. Near state-of-the-art quality with
+    32K context. Requires a GPU with 24GB+ VRAM. Use only when quality
+    matters more than anything else.
+
+- id: Salesforce/SFR-Embedding-2_R
+  name: SFR-Embedding-2
+  params: 7100M
+  dim: 4096
+  max_tokens: 32768
+  multilingual: false
+  languages: [en]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 14000
+  matryoshka: false
+  prefix: ""
+  best_for: [search, quality_critical, rag, long_documents]
+  avoid_when: [speed_critical, cpu_friendly, multilingual, prototyping]
+  description: >
+    Salesforce's 7B retrieval model. Top MTEB scores for English retrieval.
+    Requires serious GPU hardware.
+
+- id: Alibaba-NLP/gte-Qwen2-7B-instruct
+  name: GTE-Qwen2-7B
+  params: 7600M
+  dim: 3584
+  max_tokens: 32768
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko, ar, hi]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 15000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, long_documents, multilingual, rag]
+  avoid_when: [speed_critical, cpu_friendly, prototyping]
+  description: >
+    7B model from Alibaba based on Qwen2. State-of-the-art multilingual
+    quality with 32K context. Requires 24GB+ GPU VRAM.
+
+- id: nvidia/NV-Embed-v2
+  name: NV-Embed-v2
+  params: 7800M
+  dim: 4096
+  max_tokens: 32768
+  multilingual: false
+  languages: [en]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 15000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, search, rag, long_documents]
+  avoid_when: [speed_critical, cpu_friendly, multilingual, prototyping]
+  description: >
+    NVIDIA's embedding model. #1 on MTEB leaderboard at time of release.
+    Requires A100-class GPU.
+
+- id: BAAI/bge-en-icl
+  name: BGE-ICL
+  params: 7100M
+  dim: 4096
+  max_tokens: 32768
+  multilingual: false
+  languages: [en]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 14000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, search, few_shot]
+  avoid_when: [speed_critical, cpu_friendly, multilingual, prototyping]
+  description: >
+    In-context learning embedding model from BAAI. Can use few-shot examples
+    in the prompt to improve task-specific quality. Requires serious GPU.
+
+- id: dunzhang/stella_en_1.5B_v5
+  name: Stella-1.5B
+  params: 1500M
+  dim: 8192
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 6000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, search, rag]
+  avoid_when: [speed_critical, cpu_friendly, multilingual, prototyping]
+  description: >
+    1.5B model with very high-dimensional output (8192). Strong MTEB scores.
+    Requires GPU with 16GB+ VRAM.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# MEDIUM-LARGE LLM-BASED - 400M-1.5B params
+# The "sweet spot" for users who want LLM-quality without needing an A100.
+# Practical on a single consumer GPU (8-16GB VRAM).
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: Alibaba-NLP/gte-Qwen2-1.5B-instruct
+  name: GTE-Qwen2-1.5B
+  params: 1500M
+  dim: 1536
+  max_tokens: 32768
+  multilingual: true
+  languages: [en, zh, de, fr, es, ru, ja, ko]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 6000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, long_documents, multilingual, rag]
+  avoid_when: [speed_critical, cpu_friendly, prototyping]
+  description: >
+    1.5B model based on Qwen2. Near-7B quality at a fraction of the size.
+    32K context. Practical on a 16GB GPU.
+
+- id: BAAI/bge-large-en-v1.5
+  name: BGE-large
+  params: 335M
+  dim: 1024
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, search, classification, production]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    Top-tier English model. Use when quality is paramount and you have
+    GPU resources. Significantly better than base models on hard tasks.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# CODE-SPECIFIC - trained on or optimized for source code
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: jinaai/jina-embeddings-v2-base-code
+  name: Jina-v2-code
+  params: 137M
+  dim: 768
+  max_tokens: 8192
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 550
+  matryoshka: false
+  prefix: ""
+  best_for: [code, search, long_documents]
+  avoid_when: [multilingual]
+  description: >
+    Trained specifically on code. 8K context handles full source files.
+    Use for code search, documentation retrieval, or any task where
+    the input is primarily source code.
+
+- id: Salesforce/codet5p-110m-embedding
+  name: CodeT5p-110M
+  params: 110M
+  dim: 256
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: good
+  size_mb: 420
+  matryoshka: false
+  prefix: ""
+  best_for: [code, classification, clustering, cpu_friendly]
+  avoid_when: [multilingual, long_documents, general]
+  description: >
+    Code-specific embedding model from Salesforce. Lower dimensional (256)
+    but efficient. Good for code classification and clone detection.
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# INSTRUCTION-TUNED - respond to task-specific prompts for better quality
+# ═══════════════════════════════════════════════════════════════════════════════
+
+- id: BAAI/bge-base-en-v1.5
+  name: BGE-base
+  params: 109M
+  dim: 768
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: medium
+  quality_tier: better
+  size_mb: 420
+  matryoshka: false
+  prefix: ""
+  best_for: [search, general, classification, production]
+  avoid_when: [multilingual, long_documents, speed_critical]
+  description: >
+    Excellent English model at the 768-dim tier. Strong on retrieval and
+    classification. Good default when you have a GPU available.
+
+- id: hkunlp/instructor-large
+  name: Instructor-large
+  params: 335M
+  dim: 768
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: slow
+  quality_tier: best
+  size_mb: 1300
+  matryoshka: false
+  prefix: ""
+  best_for: [classification, clustering, search, general]
+  avoid_when: [speed_critical, cpu_friendly, multilingual]
+  description: >
+    Instruction-tuned model - you describe the task in the prompt and it
+    adapts embeddings accordingly. Versatile but slower due to longer inputs.
+
+- id: hkunlp/instructor-xl
+  name: Instructor-XL
+  params: 1500M
+  dim: 768
+  max_tokens: 512
+  multilingual: false
+  languages: [en]
+  speed_tier: very_slow
+  quality_tier: best
+  size_mb: 5000
+  matryoshka: false
+  prefix: ""
+  best_for: [quality_critical, classification, search]
+  avoid_when: [speed_critical, cpu_friendly, multilingual, prototyping]
+  description: >
+    Extra-large instruction-tuned model. Very strong quality but very slow.
+    Requires GPU with 16GB+ VRAM.
