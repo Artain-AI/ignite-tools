@@ -1,0 +1,55 @@
+# Full config — data reading + tool config reference (split pattern).
+# Run: ignite-read --config examples/configs/full.yaml
+#
+# The report: block is a path reference to a separate file.
+# This keeps the data config clean and the report settings reusable.
+storage:
+  type: local
+  path: examples/data/
+  recursive: true
+format:
+  type: jsonl
+text:
+  router_field: attributes.source
+  routes:
+    github:
+      fields: [attributes.body, attributes.title]
+    reddit:
+      fields: [attributes.body, attributes.title]
+    hackernews:
+      fields: [attributes.text, attributes.title]
+    _default:
+      fields: [attributes.title]
+id:
+  field: id
+labels:
+  field: label
+normalize:
+  lowercase: true
+  collapse_whitespace: true
+  strip: true
+  masks:
+    - pattern: "https?://\\S+"
+      replacement: "<url>"
+    - pattern: "\\b[0-9a-f]{40}\\b"
+      replacement: "<sha>"
+    - pattern: "\\bv?\\d+\\.\\d+\\.\\d+\\b"
+      replacement: "<version>"
+  trim:
+    max_chars: 256
+    min_chars: 5
+filters:
+  time_field: ts
+  time_from: "2026-01-01"
+  time_to: "2026-02-15"
+  labels_include: [security, infrastructure, backend, programming, devops, ml-ai]
+sampling:
+  mode: stratified
+  group_field: label
+  per_group: 3
+  seed: 42
+
+# Tool config: path reference (relative to this file's directory).
+# Key matches the CLI tool name exactly.
+ignite-read: ./read-settings.yaml
+ignite-eval: ./eval-settings.yaml

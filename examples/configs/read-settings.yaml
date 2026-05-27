@@ -1,0 +1,23 @@
+# Report settings for ignite-read (referenced from full.yaml).
+# Demonstrates the split config pattern: data config + tool config in
+# separate files, linked by a path reference.
+sections:
+  - corpus_stats
+  - per_source
+  - labels
+  - top_words
+  - patterns
+top_words:
+  count: 25
+  min_length: 3
+  stop_words_extend: [fix, add, update, use]
+time:
+  granularity: month
+patterns:
+  - name: has_url
+    pattern: "https?://\\S+"
+  - name: has_sha
+    pattern: "\\b[0-9a-f]{40}\\b"
+sample:
+  count: 10
+  truncate: 72

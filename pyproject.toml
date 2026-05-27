@@ -1,0 +1,91 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ignite-tools"
+version = "0.0.1"
+description = "Task-specific tools for working with text embeddings."
+requires-python = ">=3.10"
+readme = "README.md"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Artain" }]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+
+# Base runtime dependencies - what you always need.
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.11",
+    "scikit-learn>=1.3",
+    "sentence-transformers>=2.2",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+    "orjson>=3.9",
+    "polars>=0.20",
+    "zstandard>=0.22",
+    "psutil>=5.9",
+    "huggingface-hub>=0.20",
+]
+
+[project.optional-dependencies]
+# Cloud storage backends (S3, Azure).
+cloud = [
+    "boto3>=1.28",
+    "azure-storage-blob>=12.19",
+]
+# Extra formats (CSV/TSV via polars, .zst compression).
+formats = [
+    "polars>=0.20",
+    "zstandard>=0.22",
+]
+# Everything (cloud + formats).
+all = [
+    "boto3>=1.28",
+    "azure-storage-blob>=12.19",
+    "polars>=0.20",
+    "zstandard>=0.22",
+]
+# Development tools.
+dev = [
+    "boto3>=1.28",
+    "azure-storage-blob>=12.19",
+    "polars>=0.20",
+    "zstandard>=0.22",
+    "pytest>=7.4",
+    "pytest-timeout>=2.2",
+    "pytest-benchmark>=4.0",
+    "py-spy>=0.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/Artain-AI/ignite-tools"
+
+[project.scripts]
+ignite-read = "ignite_tools.read.cli:main"
+ignite-eval = "ignite_tools.eval.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ignite_tools"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "src/ignite_tools",
+    "docs",
+    "examples",
+    "tests",
+    "README.md",
+    "LICENSE",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = ["-ra", "--strict-markers"]

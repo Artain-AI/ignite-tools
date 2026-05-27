@@ -1,0 +1,19 @@
+# Config for the synthetic 10K benchmark dataset.
+# 10,000 generated tech discussion texts across 4 sources and 9 topics.
+# No proprietary data — safe for open source.
+#
+# Run:
+#   ignite-eval --config examples/configs/benchmark-10k.yaml --yes
+#   ignite-read --config examples/configs/benchmark-10k.yaml
+storage:
+  type: local
+  path: examples/data-10k/
+  recursive: true
+format:
+  type: jsonl
+text:
+  fields: [text]
+id:
+  field: id
+labels:
+  field: topic

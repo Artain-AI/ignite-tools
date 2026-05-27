@@ -1,0 +1,11 @@
+# Minimal config — single file, simple field extraction, no processing.
+# Run: ignite-read --format-config examples/configs/minimal.yaml
+storage:
+  type: local
+  path: examples/data/reddit/events.jsonl
+format:
+  type: jsonl
+text:
+  fields: [attributes.body, attributes.title]
+id:
+  field: id
